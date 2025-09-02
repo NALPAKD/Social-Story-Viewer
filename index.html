@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Story Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            min-height: 600px;
+        }
+
+        .header {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .page-counter {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 30px;
+            text-align: center;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .story-image {
+            max-width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .nav-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .page-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-number {
+            width: 40px;
+            height: 40px;
+            background: #e9ecef;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .page-number:hover {
+            background: #dee2e6;
+            transform: scale(1.1);
+        }
+
+        .page-number.active {
+            background: #667eea;
+            color: white;
+            border-color: #5a67d8;
+        }
+
+        .page-number.title {
+            background: #28a745;
+        }
+
+        .page-number.title.active {
+            background: #218838;
+        }
+
+        .page-number.end {
+            background: #dc3545;
+        }
+
+        .page-number.end.active {
+            background: #c82333;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .controls-help {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-width: 70px;
+            }
+
+            .page-number {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Social Story</h1>
+            <div class="page-counter">
+                Page <span id="currentPageDisplay">1</span> of 10
+            </div>
+        </div>
+
+        <div class="main-content">
+            <img id="storyImage" class="story-image" src="" alt="Social story page" onerror="showError()">
+            
+            <div class="page-numbers">
+                <div class="page-number title active" onclick="goToPage(1)" title="Title Page">1</div>
+                <div class="page-number" onclick="goToPage(2)">2</div>
+                <div class="page-number" onclick="goToPage(3)">3</div>
+                <div class="page-number" onclick="goToPage(4)">4</div>
+                <div class="page-number" onclick="goToPage(5)">5</div>
+                <div class="page-number" onclick="goToPage(6)">6</div>
+                <div class="page-number" onclick="goToPage(7)">7</div>
+                <div class="page-number" onclick="goToPage(8)">8</div>
+                <div class="page-number" onclick="goToPage(9)">9</div>
+                <div class="page-number end" onclick="goToPage(10)" title="End Page">10</div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="previousPage()" id="prevBtn">← Previous</button>
+                <button class="nav-button" onclick="goToPage(1)" id="homeBtn">🏠 Start</button>
+                <button class="nav-button" onclick="nextPage()" id="nextBtn">Next →</button>
+            </div>
+
+            <div class="controls-help">
+                Click page numbers to jump to any page • Use arrow keys to navigate • Click images to advance
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 10;
+        const imagePath = 'C:/Users/nalpa/OneDrive/Desktop/Social Story/Images/SocialStory/';
+
+        function showError() {
+            const img = document.getElementById('storyImage');
+            img.style.display = 'none';
+            
+            const mainContent = document.querySelector('.main-content');
+            let errorDiv = document.querySelector('.error-message');
+            
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `
+                    <h3>Image not found</h3>
+                    <p>Cannot load: ${currentPage}.png</p>
+                    <p><strong>Setup Instructions:</strong></p>
+                    <ol style="text-align: left; display: inline-block;">
+                        <li>Save this HTML file to your Desktop</li>
+                        <li>Create a folder called "Images" next to this HTML file</li>
+                        <li>Copy your 1.png through 10.png files into the Images folder</li>
+                        <li>Refresh this page</li>
+                    </ol>
+                    <p>Or click the buttons to try other pages.</p>
+                `;
+                mainContent.insertBefore(errorDiv, mainContent.querySelector('.page-numbers'));
+            }
+        }
+
+        function hideError() {
+            const errorDiv = document.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            document.getElementById('storyImage').style.display = 'block';
+        }
+
+        function updatePage() {
+            const img = document.getElementById('storyImage');
+            const currentPageDisplay = document.getElementById('currentPageDisplay');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Try multiple path formats
+            const possiblePaths = [
+                `Images/${currentPage}.png`,  // Relative path (recommended)
+                `${currentPage}.png`,         // Same directory
+                `file:///${imagePath}${currentPage}.png` // Full path (may not work in all browsers)
+            ];
+
+            img.src = possiblePaths[0]; // Start with relative path
+            currentPageDisplay.textContent = currentPage;
+
+            // Update navigation buttons
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            // Update page number indicators
+            document.querySelectorAll('.page-number').forEach((el, index) => {
+                el.classList.toggle('active', index + 1 === currentPage);
+            });
+
+            hideError();
+        }
+
+        function goToPage(pageNumber) {
+            if (pageNumber >= 1 && pageNumber <= totalPages) {
+                currentPage = pageNumber;
+                updatePage();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePage();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    previousPage();
+                    break;
+                case 'ArrowRight':
+                    nextPage();
+                    break;
+                case 'Home':
+                    goToPage(1);
+                    break;
+                case 'End':
+                    goToPage(totalPages);
+                    break;
+                case 'Escape':
+                    goToPage(1);
+                    break;
+            }
+        });
+
+        // Click on image to advance
+        document.getElementById('storyImage').addEventListener('click', function() {
+            nextPage();
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePage();
+        });
+    </script>
+</body>
+</html>
